@@ -1,6 +1,6 @@
 # CMake toolchain for ubirch ARM
 
-This is a cross compiler toolchain for the ARM GCC compiler for the [ubirch](https://ubirch.com/) hardware platform.
+This is a cross compiler [CMake](https://cmake.org) toolchain for the ARM GCC compiler for the [ubirch](https://ubirch.com/) hardware platform.
 The toolchain is pretty generic and based on the [ARM mbed target](https://github.com/ARMmbed/target-mbed-gcc).
 
 ## Usage
