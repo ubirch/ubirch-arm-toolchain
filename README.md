@@ -20,9 +20,9 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
         * `ubirch-GNU-C.cmake` - GNU-C and ASM compiler setting
         * `ubirch-GNU-CXX.cmake` - GNU-CXX compiler settings
 - `CMakeLists.txt` - an example how to apply the toolchain file directly
-- example
-    * CMakeLists.txt - an example for a compiling a simple program
-    * main.c - an example program (does nothing, not even `hello world`)
+- `example`
+    * `CMakeLists.txt` - an example for a compiling a simple program
+    * `main.c` - an example program (does nothing, not even `hello world`)
 - `README.md` - this read me file
 - `.gitignore` - tells git what to ignore (i.e. C, C++, CLion, and CMake intermediate files)
 - `.editorconfig` - editor configuration (only unix LF, 2 spaces indent)
