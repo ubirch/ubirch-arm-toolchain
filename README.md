@@ -9,7 +9,8 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 1. Check out the toolchain: `git clone https://gitlab.com/ubirch/ubirch-arm-toolchain.git`
 2. To use the toolchain, create a build directory outside of your source tree. Then either run
    put the toolchain file into your main `CMakeLists.txt` (see [example](CMakeLists.txt)) or run `cmake`
-   with a reference to the toolchain file
+   with a reference to the toolchain file:
+   
    ```
    cd <build-dir>
    cmake <source-dir> -DCMAKE_TOOLCHAIN_FILE=<toolchain-dir>/cmake/ubirch-arm-gcc-toolchain.cmake
@@ -39,7 +40,7 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 
 If not otherwise noted in the individual files, the code in this repository is
 
- __Copyright &copy; 2016 ubirch GmbH, Author: Matthias L. Jugel__
+__Copyright &copy; 2016 ubirch GmbH, Author: Matthias L. Jugel__
 
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
