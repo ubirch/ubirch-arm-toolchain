@@ -44,7 +44,7 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 
 If not otherwise noted in the individual files, the code in this repository is
 
-__Copyright &copy; 2016 ubirch GmbH, Author: Matthias L. Jugel__
+__Copyright &copy; 2016 [ubirch](http://ubirch.com) GmbH, Author: Matthias L. Jugel__
 
 ```
 Licensed under the Apache License, Version 2.0 (the "License");
