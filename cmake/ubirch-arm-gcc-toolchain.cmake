@@ -83,30 +83,32 @@ include(CMakePackageConfigHelpers)
 macro(provide)
   cmake_parse_arguments(PROVIDE "" "PACKAGE;MCU;VERSION" "TARGETS" ${ARGN})
 
-#  message(STATUS "PACKAGE: ${PROVIDE_PACKAGE}")
-#  message(STATUS "VERSION: ${PROVIDE_VERSION}")
-#  message(STATUS "TARGETS: ${PROVIDE_TARGETS}")
+  message(STATUS "PROVIDE PACKAGE   : ${PROVIDE_PACKAGE}")
+  message(STATUS "PROVIDE VERSION   : ${PROVIDE_VERSION}")
+  message(STATUS "PROVIDE MCU       : ${PROVIDE_MCU}")
+  message(STATUS "PROVIDE BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+  message(STATUS "PROVIDE TARGETS   : ${PROVIDE_TARGETS}")
 #  message(STATUS "${REQUIRE_UNPARSED_ARGUMENTS}")
 
   # for the MinSizeRel build type, also write a generic config file
   if (CMAKE_BUILD_TYPE MATCHES MinSizeRel)
-    export(TARGETS ${PROVIDE_TARGETS} FILE ${PROVIDE_PACKAGE}_${MCU}Config.cmake)
+    export(TARGETS ${PROVIDE_TARGETS} FILE ${PROVIDE_PACKAGE}_${PROVIDE_MCU}Config.cmake)
     write_basic_package_version_file(
-      "${CMAKE_CURRENT_BINARY_DIR}/${PROVIDE_PACKAGE}_${MCU}ConfigVersion.cmake"
+      "${CMAKE_CURRENT_BINARY_DIR}/${PROVIDE_PACKAGE}_${PROVIDE_MCU}ConfigVersion.cmake"
       VERSION ${PROVIDE_VERSION}
       COMPATIBILITY AnyNewerVersion
     )
   endif ()
 
-  export(TARGETS ${PROVIDE_TARGETS} FILE ${PROVIDE_PACKAGE}_${MCU}${CMAKE_BUILD_TYPE}Config.cmake)
+  export(TARGETS ${PROVIDE_TARGETS} FILE ${PROVIDE_PACKAGE}_${PROVIDE_MCU}${CMAKE_BUILD_TYPE}Config.cmake)
   write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROVIDE_PACKAGE}_${MCU}${CMAKE_BUILD_TYPE}ConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROVIDE_PACKAGE}_${PROVIDE_MCU}${CMAKE_BUILD_TYPE}ConfigVersion.cmake"
     VERSION ${PROVIDE_VERSION}}
     COMPATIBILITY AnyNewerVersion
   )
 
   # register this target in the cmake registry
-  export(PACKAGE ${PROVIDE_PACKAGE}_${MCU})
+  export(PACKAGE ${PROVIDE_PACKAGE}_${PROVIDE_MCU})
 endmacro()
 
 #!
@@ -118,10 +120,11 @@ endmacro()
 macro(require)
   cmake_parse_arguments(REQUIRE "OPTIONAL" "PACKAGE;MCU;VERSION;BUILD_TYPE" "" ${ARGN})
 
-#  message(STATUS "PACKAGE: ${REQUIRE_PACKAGE}")
-#  message(STATUS "VERSION: ${REQUIRE_VERSION}")
-#  message(STATUS "BUILD_TYPE: ${REQUIRE_BUILD_TYPE}")
-#  message(STATUS "OPTIONAL: ${REQUIRE_OPTIONAL}")
+  message(STATUS "REQUIRE PACKAGE   : ${REQUIRE_PACKAGE}")
+  message(STATUS "REQUIRE VERSION   : ${REQUIRE_VERSION}")
+  message(STATUS "REQUIRE MCU       : ${REQUIRE_MCU}")
+  message(STATUS "REQUIRE BUILD_TYPE: ${REQUIRE_BUILD_TYPE}")
+  message(STATUS "REQUIRE OPTIONAL  : ${REQUIRE_OPTIONAL}")
 #  message(STATUS "${REQUIRE_UNPARSED_ARGUMENTS}")
 
   if (NOT REQUIRE_OPTIONAL)
@@ -130,18 +133,19 @@ macro(require)
     set(REQUIRED "QUIET")
   endif ()
 
-  if (NOT REQUIRE_BUILD_TYPE STREQUAL "")
-    find_package("${REQUIRE_PACKAGE}_${MCU}" "${REQUIRE_VERSION}" ${REQUIRED} NAMES "${REQUIRE_PACKAGE}_${MCU}${REQUIRE_BUILD_TYPE}")
+  if (NOT ("${REQUIRE_BUILD_TYPE}" STREQUAL ""))
+    find_package("${REQUIRE_PACKAGE}_${REQUIRE_MCU}" "${REQUIRE_VERSION}" ${REQUIRED}
+      NAMES "${REQUIRE_PACKAGE}_${REQUIRE_MCU}${REQUIRE_BUILD_TYPE}")
   endif ()
 
-  if (NOT ${REQUIRE_PACKAGE}_${MCU}_DIR)
+  if (NOT ${REQUIRE_PACKAGE}_${REQUIRE_MCU}_DIR)
     if (NOT REQUIRE_OPTIONAL)
-      message(STATUS "Can't find ${REQUIRE_PACKAGE} for MCU ${MCU}, build type ${REQUIRE_BUILD_TYPE}, trying default.")
+      message(WARNING "Can't find ${REQUIRE_PACKAGE} for MCU ${REQUIRE_MCU}, build type ${REQUIRE_BUILD_TYPE}, trying default.")
     endif ()
-    find_package("${REQUIRE_PACKAGE}_${MCU}" "${REQUIRE_VERSION}" ${REQUIRED})
+    find_package("${REQUIRE_PACKAGE}_${REQUIRE_MCU}" "${REQUIRE_VERSION}" ${REQUIRED})
   endif ()
-  if (${REQUIRE_PACKAGE}_${MCU}_DIR)
+  if (${REQUIRE_PACKAGE}_${REQUIRE_MCU}_DIR)
     message(STATUS "${REQUIRE_PACKAGE} version: ${REQUIRE_VERSION}")
-    message(STATUS "${${REQUIRE_PACKAGE}_${MCU}_DIR}")
+    message(STATUS "${${REQUIRE_PACKAGE}_${REQUIRE_MCU}_DIR}")
   endif ()
 endmacro()
