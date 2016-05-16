@@ -40,6 +40,30 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
    [CMake](https://cmake.org) intermediate files)
 - `.editorconfig` - editor configuration (only [unix LF](https://en.wikipedia.org/wiki/Newline), 2 spaces indent)
 
+## Extra
+
+The toolchain provides two macros for providing and requiring exported packages. This is useful for cross-compiled
+builds where we don't want to copy the libs into other projects, but rather require them. This is somewhat similar
+to maven build tools.
+
+However, the `provide` macro exports directly from the build tree, which may break downstream builds if you make
+changes. Should work well, in cases where support libraries are downloaded, built and simply used.
+
+The `provide` macro also exports a special config for the `CMAKE_BUILD_TYPE`, so downstream projects may request
+a certain build type using `require`.
+
+### Example
+
+In a `kinetis-sdk.cmake` file we might export the KinetisSDK:
+```
+provide(PACKAGE KinetisSDK VERSION 2.0 TARGETS ksdk20 mmcau)
+```
+
+In a `my-project.cmake` file we can then (if we use this toolchain!), require KinetisSDK:
+```
+require(PACKAGE KinetisSDK VERSION 2.0)
+```
+
 ## License
 
 If not otherwise noted in the individual files, the code in this repository is
