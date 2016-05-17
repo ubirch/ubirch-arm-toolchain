@@ -133,11 +133,18 @@ macro(require)
     set(REQUIRED "QUIET")
   endif ()
 
+  # if there is no build type set, set it to the current build type
+  if("${REQUIRE_BUILD_TYPE}" STREQUAL "")
+    set(REQUIRE_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+  endif()
+
+  # try to find a package with the specific build type
   if (NOT ("${REQUIRE_BUILD_TYPE}" STREQUAL ""))
     find_package("${REQUIRE_PACKAGE}_${REQUIRE_MCU}" "${REQUIRE_VERSION}" ${REQUIRED}
       NAMES "${REQUIRE_PACKAGE}_${REQUIRE_MCU}${REQUIRE_BUILD_TYPE}")
   endif ()
 
+  # if no specific build config has been found, try default (any)
   if (NOT ${REQUIRE_PACKAGE}_${REQUIRE_MCU}_DIR)
     if (NOT REQUIRE_OPTIONAL)
       message(WARNING "Can't find ${REQUIRE_PACKAGE} for MCU ${REQUIRE_MCU}, build type ${REQUIRE_BUILD_TYPE}, trying default.")
