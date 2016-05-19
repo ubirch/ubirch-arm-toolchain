@@ -25,6 +25,7 @@ find_program(ARM_NONE_EABI_GCC arm-none-eabi-gcc)
 find_program(ARM_NONE_EABI_GPP arm-none-eabi-g++)
 find_program(ARM_NONE_EABI_OBJCOPY arm-none-eabi-objcopy)
 find_program(ARM_NONE_EABI_OBJDUMP arm-none-eabi-objdump)
+find_program(ARM_NONE_EABI_SIZE arm-none-eabi-size)
 
 # macro to print an info message in case we didn't find the compiler executables
 macro(gcc_program_notfound progname)
