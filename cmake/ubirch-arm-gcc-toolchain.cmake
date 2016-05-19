@@ -177,7 +177,7 @@ function(require)
   endif ()
 
   # if there is no build type set, set it to the current build type
-  if ("${REQUIRE_BUILD_TYPE}" STREQUAL "")
+  if (NOT REQUIRE_BUILD_TYPE OR "${REQUIRE_BUILD_TYPE}" STREQUAL "")
     set(REQUIRE_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
   endif ()
 
