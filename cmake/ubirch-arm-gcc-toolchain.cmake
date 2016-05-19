@@ -82,19 +82,30 @@ include(CMakePackageConfigHelpers)
 # @param TARGETS all targets to be exported
 #
 function(provide)
-  cmake_parse_arguments(PROVIDE "" "PACKAGE;MCU;VERSION" "TARGETS" ${ARGN})
+  cmake_parse_arguments(PROVIDE "" "PACKAGE;MCU;BOARD;VERSION" "TARGETS" ${ARGN})
+  if (PROVIDE_MCU AND PROVIDE_BOARD)
+    message(FATAL_ERROR "MCU and BOARD set, set only one of both!")
+  endif ()
 
-  message(STATUS "PROVIDE PACKAGE   : ${PROVIDE_PACKAGE}")
+  # set the spec for this package (defines part of the namespace for targets)
+  if (PROVIDE_BOARD)
+    set(PROVIDE_SPEC ${PROVIDE_BOARD})
+  elseif (PROVIDE_MCU)
+    set(PROVIDE_SPEC ${PROVIDE_MCU})
+  else ()
+    status(FATAL_ERROR "Please provide with either MCU or BOARD setting.")
+  endif ()
+
+  message(STATUS "PROVIDE PACKAGE   : ${PROVIDE_PACKAGE}::${PROVIDE_SPEC}::")
   message(STATUS "PROVIDE VERSION   : ${PROVIDE_VERSION}")
-  message(STATUS "PROVIDE MCU       : ${PROVIDE_MCU}")
   message(STATUS "PROVIDE BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
   message(STATUS "PROVIDE TARGETS   : ${PROVIDE_TARGETS}")
   #  message(STATUS "${REQUIRE_UNPARSED_ARGUMENTS}")
 
-  set(PACKAGE_NAME ${PROVIDE_PACKAGE}-${PROVIDE_MCU})
+  set(PACKAGE_NAME ${PROVIDE_PACKAGE}-${PROVIDE_SPEC})
   export(
     TARGETS ${PROVIDE_TARGETS}
-    NAMESPACE ${PROVIDE_PACKAGE}::${PROVIDE_MCU}::
+    NAMESPACE ${PROVIDE_PACKAGE}::${PROVIDE_SPEC}::
     FILE ${PACKAGE_NAME}Targets.cmake
   )
 
@@ -151,18 +162,26 @@ endfunction()
 # @param type the optional build type (default: MinSizeRel)
 #
 function(require)
-  cmake_parse_arguments(REQUIRE "OPTIONAL" "PACKAGE;MCU;VERSION;BUILD_TYPE" "" ${ARGN})
-#  if (${REQUIRE_PACKAGE}_DIR)
-#    message(STATUS "${REQUIRE_PACKAGE} already required.")
-#    return()
-#  endif ()
+  cmake_parse_arguments(REQUIRE "OPTIONAL" "PACKAGE;MCU;BOARD;VERSION;BUILD_TYPE" "" ${ARGN})
+  if (REQUIRE_MCU AND REQUIRE_BOARD)
+    message(FATAL_ERROR "MCU and BOARD set, set only one of both!")
+  endif ()
+
+  # set the spec for this package (defines part of the namespace for targets)
+  if (REQUIRE_BOARD)
+    set(REQUIRE_SPEC ${REQUIRE_BOARD})
+  elseif (REQUIRE_MCU)
+    set(REQUIRE_SPEC ${REQUIRE_MCU})
+  else ()
+    message(FATAL_ERROR "Please require with either MCU or BOARD setting.")
+  endif ()
 
   # if there is no build type set, set it to the current build type
   if ("${REQUIRE_BUILD_TYPE}" STREQUAL "")
     set(REQUIRE_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
   endif ()
 
-  message(STATUS "REQUIRE: ${REQUIRE_PACKAGE} (${REQUIRE_VERSION}, MCU=${REQUIRE_MCU}, ${REQUIRE_BUILD_TYPE})")
+  message(STATUS "REQUIRE: ${REQUIRE_PACKAGE}::${REQUIRE_SPEC} (${REQUIRE_VERSION}, ${REQUIRE_BUILD_TYPE})")
   #  message(STATUS "${REQUIRE_UNPARSED_ARGUMENTS}")
 
   if (NOT REQUIRE_OPTIONAL)
@@ -171,7 +190,7 @@ function(require)
     set(REQUIRED "QUIET")
   endif ()
 
-  set(PACKAGE_NAME ${REQUIRE_PACKAGE}-${REQUIRE_MCU})
+  set(PACKAGE_NAME ${REQUIRE_PACKAGE}-${REQUIRE_SPEC})
 
   # try to find the package using the required MCU and BUILD_TYPE
   find_package(
@@ -182,7 +201,7 @@ function(require)
   # if no specific build config has been found, try default (any)
   if (NOT ${REQUIRE_PACKAGE}_DIR)
     if (NOT REQUIRE_OPTIONAL)
-      message(STATUS "${REQUIRE_PACKAGE} (MCU=${REQUIRE_MCU}, ${REQUIRE_BUILD_TYPE}) not found, trying default.")
+      message(STATUS "${REQUIRE_PACKAGE}::${REQUIRE_SPEC}:: (${REQUIRE_BUILD_TYPE}) not found, trying default.")
     endif ()
     find_package(
       ${REQUIRE_PACKAGE} ${REQUIRE_VERSION}
