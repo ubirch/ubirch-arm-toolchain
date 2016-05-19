@@ -56,12 +56,12 @@ a certain build type using `require`.
 
 In a `kinetis-sdk.cmake` file we might export the KinetisSDK:
 ```
-provide(PACKAGE KinetisSDK VERSION 2.0 TARGETS ksdk20 mmcau)
+provide(PACKAGE KinetisSDK MCU MK82F25615 VERSION 2.0 TARGETS ksdk20 mmcau)
 ```
 
 In a `my-project.cmake` file we can then (if we use this toolchain!), require KinetisSDK:
 ```
-require(PACKAGE KinetisSDK VERSION 2.0)
+require(PACKAGE KinetisSDK MCU  MK82F25615 VERSION 2.0)
 ```
 
 ## License
