@@ -5,7 +5,13 @@ find_file(JLINK_IN flash.jlink.in HINTS ${CMAKE_CURRENT_LIST_DIR})
 find_file(GDBINIT_FILE gdbinit HINTS ${CMAKE_CURRENT_LIST_DIR})
 find_file(GDBINIT_FLASH_FILE gdbinit_flash HINTS ${CMAKE_CURRENT_LIST_DIR})
 
-find_program(JLINK JLinkExe)
+# try to find JLink.exe on windows, hint the install directory
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+  file(GLOB JLINK_PATH "C:/Program Files*/SEGGER/Jlink*")
+  find_program(JLINK JLink.exe PATHS ${JLINK_PATH})
+else()
+  find_program(JLINK JLinkExe)
+endif()
 find_program(GDB arm-none-eabi-gdb)
 find_program(CGDB cgdb)
 
