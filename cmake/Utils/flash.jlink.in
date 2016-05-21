@@ -1,0 +1,4 @@
+loadbin @FLASH_TARGET_FILE@, @FLASH_START_ADDRESS@
+r
+g
+exit
