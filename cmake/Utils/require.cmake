@@ -1,3 +1,5 @@
+# @file
+
 set(CMAKE_INSTALL_PREFIX $ENV{HOME}/.cmake/repository/arm-none-eabi CACHE STRING "" FORCE)
 message(STATUS "Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 
