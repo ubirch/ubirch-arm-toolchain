@@ -7,8 +7,7 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 ## Usage
 
 1. Check out the toolchain:
-    ```
-    git clone https://gitlab.com/ubirch/ubirch-arm-toolchain.git
+    `git clone https://gitlab.com/ubirch/ubirch-arm-toolchain.git`
     ```
 
 2. To use the toolchain, create a build directory outside of your source tree. Then either run
@@ -30,6 +29,12 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
         * `ubirch-GNU-C.cmake` - [GNU-C](https://gcc.gnu.org/), and
           [ASM](https://en.wikipedia.org/wiki/Assembly_language#Assembler) compiler setting
         * `ubirch-GNU-CXX.cmake` - [GNU-CXX](https://gcc.gnu.org/) compiler settings
+    - `Utils`
+        * `require.cmake` - utility function to suport `provide()`/`require()` mechanics (part of toolchain)
+        * `flashing.cmake` - utility macro `prepare_flash()` for simpler flashing (part of toolchain)
+        * `flash.jlink.in` - template for flashing via [SEGGER JLink](https://www.segger.com/jlink-debug-probes.html)
+        * `gdbinit` - init file for debugging with the [GDB](https://www.gnu.org/software/gdb/) debugger
+        * `gdbinit_flash` - init file for flashing via [GDB](https://www.gnu.org/software/gdb/) debugger
 - `CMakeLists.txt` - an example how to apply the toolchain file directly
 - `example`
     * `CMakeLists.txt` - an example for a compiling a simple program
@@ -42,17 +47,20 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 
 ## Extra
 
-The toolchain provides two macros for providing and requiring exported packages. This is useful for cross-compiled
+The toolchain provides two functions for providing and requiring exported packages. This is useful for cross-compiled
 builds where we don't want to copy the libs into other projects, but rather require them. This is somewhat similar
 to maven build tools.
 
-However, the `provide` macro exports directly from the build tree, which may break downstream builds if you make
+However, the `provide` function exports directly from the build tree, which may break downstream builds if you make
 changes. Should work well, in cases where support libraries are downloaded, built and simply used.
 
-The `provide` macro also exports a special config for the `CMAKE_BUILD_TYPE`, so downstream projects may request
+The `provide` function also exports a special config for the `CMAKE_BUILD_TYPE`, so downstream projects may request
 a certain build type using `require`.
 
-### Example
+To support easier flashing, a macro `prepare_flash` is available which creates extra targets that
+make flashing and debugging simpler.
+
+### Examples
 
 In a `kinetis-sdk.cmake` file we might export the KinetisSDK:
 ```
@@ -61,7 +69,7 @@ provide(PACKAGE KinetisSDK MCU MK82F25615 VERSION 2.0 TARGETS ksdk20 mmcau)
 
 In a `my-project.cmake` file we can then (if we use this toolchain!), require KinetisSDK:
 ```
-require(PACKAGE KinetisSDK MCU  MK82F25615 VERSION 2.0)
+require(PACKAGE KinetisSDK MCU MK82F25615 VERSION 2.0)
 ```
 
 ## License
