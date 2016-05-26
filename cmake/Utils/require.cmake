@@ -26,7 +26,7 @@ function(provide)
     status(FATAL_ERROR "Please provide with either MCU or BOARD setting.")
   endif ()
 
-  message(STATUS "PROVIDE: ${PROVIDE_PACKAGE}::${PROVIDE_SPEC}:: ${PROVIDE_VERSION}, ${CMAKE_BUILD_TYPE}")
+  message(STATUS "PROVIDE: ${PROVIDE_PACKAGE}::${PROVIDE_SPEC} (${PROVIDE_VERSION}, ${CMAKE_BUILD_TYPE})")
 
   set(PACKAGE_NAME ${PROVIDE_PACKAGE}-${PROVIDE_SPEC})
   export(

@@ -98,12 +98,12 @@ macro(prepare_flash)
       endif ()
 
       set(FLASH_TARGET_FILE ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}.bin)
-      configure_file(${JLINK_IN} ${CMAKE_CURRENT_BINARY_DIR}/flash.jlink @ONLY)
+      configure_file(${JLINK_IN} ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}-flash.jlink @ONLY)
 
       # flash directly calling JLinkExe with a script
       add_custom_target(${FLASH_TARGET}-flash
         DEPENDS ${FLASH_TARGET}
-        COMMAND ${JLINK} -if ${FLASH_INTERFACE} -device ${FLASH_DEVICE} -speed ${FLASH_SPEED} ${CMAKE_CURRENT_BINARY_DIR}/flash.jlink
+        COMMAND ${JLINK} -if ${FLASH_INTERFACE} -device ${FLASH_DEVICE} -speed ${FLASH_SPEED} ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}-flash.jlink
         )
     else ()
       # create special target that directly flashes
