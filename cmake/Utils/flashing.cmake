@@ -5,16 +5,30 @@ find_file(JLINK_IN flash.jlink.in HINTS ${CMAKE_CURRENT_LIST_DIR})
 find_file(GDBINIT_FILE gdbinit HINTS ${CMAKE_CURRENT_LIST_DIR})
 find_file(GDBINIT_FLASH_FILE gdbinit_flash HINTS ${CMAKE_CURRENT_LIST_DIR})
 
-# try to find JLink.exe on windows, hint the install directory
-if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+# try to find jlink and blhost (for all host system types)
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
   file(GLOB JLINK_PATH "C:/Program Files*/SEGGER/Jlink*")
   find_program(JLINK JLink.exe PATHS ${JLINK_PATH})
-else()
+  find_program(BLHOST blhost.exe PATHS ${CMAKE_CURRENT_LIST_DIR}/../../bin/blhost/win)
+elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
   find_program(JLINK JLinkExe)
-endif()
+  find_program(BLHOST blhost PATHS ${CMAKE_CURRENT_LIST_DIR}/../../bin/blhost/linux/${CMAKE_HOST_SYSTEM_PROCESSOR})
+elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+  find_program(JLINK JLinkExe)
+  find_program(BLHOST blhost PATHS ${CMAKE_CURRENT_LIST_DIR}/../../bin/blhost/mac)
+  set(MBED_FLASH_DIR /Volumes/MBED CACHE STRING "MBED flash directory")
+else ()
+  message(WARNING "Can't identify host system: ${CMAKE_HOST_SYSTEM}")
+endif ()
+
 find_program(GDB arm-none-eabi-gdb)
 find_program(CGDB cgdb)
 
+if (BLHOST-NOTFOUND)
+  message(STATUS "Missing blhost for your system, can't flash ubirch board via USB.")
+else ()
+  message(STATUS "blhost: ${BLHOST} found.")
+endif ()
 if (JLINK-NOTFOUND)
   message(STATUS "For direct flashing, install SEGGER JLink...")
 else ()
@@ -25,25 +39,26 @@ endif ()
 if (CGDB-NOTFOUND)
   message(STATUS "For debugging, install cgdb...")
 else ()
-  message(STATUS "debugger: ${CGDB} found.")
+  message(STATUS "Debugger: ${CGDB} found.")
 endif ()
 
 # create special target that directly flashes
-if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-  set(MBED_FLASH_DIR /Volumes/MBED)
+if (NOT MBED_FLASH_DIR)
+  message(STATUS "!! Please set MBED_FLASH_DIR to the directory where MBED mounts!")
 else ()
-  if (NOT MBED_FLASH_DIR)
-    message(STATUS "!! Please set MBED_FLASH_DIR to the directory where MBED mounts!")
-  endif ()
+  message(STATUS "MBED flash directory: ${MBED_FLASH_DIR}")
 endif ()
-message(STATUS "MBED flash directory: ${MBED_FLASH_DIR}")
 
 #!
-# @brief prepare target for flashing directly, via MBED mounted dir or GDB
+# @brief prepare target for flashing directly, via USB, MBED mounted dir, or GDB
 #
 # This macro makes flashing simpler, by selecting a number of options to directly flash
 # via the JLink Debugger or just copying the target binary to the MBED mounted directory
 # or via a load command to a GDB server.
+#
+# ubirch boards also have the ability to directly flash using blhost and USB. Initially
+# this requires disconnecting, pressing the button and connecting, then flashing.
+# Using the ubirch board firmware, pressing the button will enter the bootloader.
 #
 # It creates two extra targets: <NAME>-flash for flashing and <NAME>-gdb for showing a gdb
 # command line to start debugging.
@@ -82,7 +97,23 @@ macro(prepare_flash)
     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${FLASH_TARGET}> $<TARGET_FILE_DIR:${FLASH_TARGET}>/${FLASH_TARGET}.bin
   )
 
-  if (BOARD MATCHES "ubirch.*" OR FLASH_JLINK)
+  # Flashing the ubirch board works by invoking the ROM bootloader mode of the Kinetis device
+  if (BOARD MATCHES "ubirch" AND NOT (FLASH_JLINK OR FLASH_GDB))
+    if (BLHOST-NOTFOUND)
+      message(FATAL_ERROR "can't flash using USB, the required blhost executable was not found!")
+    endif ()
+    if(NOT FLASH_START_ADDRESS)
+      set(FLASH_START_ADDRESS 0)
+    endif()
+    message(STATUS "Flashing '${FLASH_TARGET}' to ubirch board directly via USB.")
+    add_custom_target(${FLASH_TARGET}-flash
+      DEPENDS ${FLASH_TARGET}
+      COMMAND ${BLHOST} -u -- flash-erase-all
+      COMMAND ${BLHOST} -u -- write-memory ${FLASH_START_ADDRESS} $<TARGET_FILE_DIR:${FLASH_TARGET}>/${FLASH_TARGET}.bin
+      COMMAND ${BLHOST} -u -- reset
+      )
+  elseif (FLASH_JLINK)
+    # flash using JLink (either directly or via GDB)
     if (NOT FLASH_GDB AND JLINK)
       if (NOT FLASH_INTERFACE)
         set(FLASH_INTERFACE SWD)
@@ -97,6 +128,7 @@ macro(prepare_flash)
         set(FLASH_START_ADDRESS 0x0)
       endif ()
 
+      message(STATUS "Flashing '${FLASH_TARGET}' directly via JLink executable.")
       set(FLASH_TARGET_FILE ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}.bin)
       configure_file(${JLINK_IN} ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}-flash.jlink @ONLY)
 
@@ -106,13 +138,17 @@ macro(prepare_flash)
         COMMAND ${JLINK} -if ${FLASH_INTERFACE} -device ${FLASH_DEVICE} -speed ${FLASH_SPEED} ${CMAKE_CURRENT_BINARY_DIR}/${FLASH_TARGET}-flash.jlink
         )
     else ()
-      # create special target that directly flashes
+      message(STATUS "Flashing '${FLASH_TARGET}' indirectly via GDB server.")
+
+      # create special target that directly flashes using the gdb server as an intermediate
       add_custom_target(${FLASH_TARGET}-flash
         DEPENDS ${FLASH_TARGET}
         COMMAND ${GDB} -x ${GDBINIT_FLASH_FILE} --batch $<TARGET_FILE_DIR:${FLASH_TARGET}>/${FLASH_TARGET}.elf
         )
     endif ()
   else ()
+    message(STATUS "Flashing '${FLASH_TARGET}' via MBED mounted directory.")
+    # the FRDM boards support the MBED mounted disk flashing
     add_custom_target(${FLASH_TARGET}-flash
       DEPENDS ${FLASH_TARGET}
       COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:${FLASH_TARGET}>/${FLASH_TARGET}.bin ${FLASH_DIR}
