@@ -22,6 +22,8 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 
 ## Contents
 
+- `bin`
+    - `blhost` - directory containing the blhost executable for flashing via USB (Linux, Mac, Windows)
 - `cmake`
     - __`ubirch-arm-gcc-toolchain.cmake`__ - __the toolchain file__
     - `Platform`
