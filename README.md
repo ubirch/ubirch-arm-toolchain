@@ -7,7 +7,7 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 ## Usage
 
 1. Check out the toolchain:
-    `git clone https://gitlab.com/ubirch/ubirch-arm-toolchain.git`
+    `git clone git@github.com:ubirch/ubirch-arm-toolchain.git`
     ```
 
 2. To use the toolchain, create a build directory outside of your source tree. Then either run
