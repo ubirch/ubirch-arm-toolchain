@@ -7,22 +7,21 @@ The toolchain is pretty generic and based on the [ARM mbed target](https://githu
 ## Usage
 
 1. Check out the toolchain: `git clone git@github.com:ubirch/ubirch-arm-toolchain.git`
-1. To use the toolchain, create a build directory outside of your source tree. Then either run
+2. To use the toolchain, create a build directory outside of your source tree. Then either run
    put the toolchain file into your main `CMakeLists.txt` (see [example](CMakeLists.txt)) or run `cmake`
    with a reference to the toolchain file:
-
-    ```
-    cd <build-dir>
-    cmake <source-dir> -DCMAKE_TOOLCHAIN_FILE=<toolchain-dir>/cmake/ubirch-arm-gcc-toolchain.cmake
-    ```
-1. Finally, run `make` (or `make VERBOSE=1`) if you want to see everything).
+  ```
+  cd <build-dir>
+  cmake <source-dir> -DCMAKE_TOOLCHAIN_FILE=<toolchain-dir>/cmake/ubirch-arm-gcc-toolchain.cmake
+  ```
+3. Finally, run `make` (or `make VERBOSE=1`) if you want to see everything).
 
 ## Contents
 
 - `bin`
     - `blhost` - directory containing the blhost executable for flashing via USB (Linux, Mac, Windows)
 - `cmake`
-    - __`ubirch-arm-gcc-toolchain.cmake`__ - __the toolchain file__
+    - `ubirch-arm-gcc-toolchain.cmake` - __the toolchain file__
     - `Platform`
         * `ubirch.cmake` - general settings for [C](https://en.wikipedia.org/wiki/C_(programming_language))-class compilers, search paths and file suffixes
         * `ubirch-GNU-C.cmake` - [GNU-C](https://gcc.gnu.org/), and
