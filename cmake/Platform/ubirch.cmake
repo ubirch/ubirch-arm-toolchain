@@ -22,6 +22,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 # set default compilation flags
 set(_C_FAMILY_FLAGS "-mthumb -MMD -MP -fno-common -fno-exceptions -fno-unwind-tables -ffunction-sections -fdata-sections -ffreestanding -fno-builtin -mapcs-frame -Wall")
+set(_C_DEBUG_FLAGS "-DPRINTF_FLOAT_ENABLE -DPRINTF_ADVANCED_ENABLE -DSCANF_FLOAT_ENABLE -DSCANF_ADVANCED_ENABLE")
 
 set(CMAKE_MODULE_LINKER_FLAGS_INIT "${_C_FAMILY_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "${_C_FAMILY_FLAGS}")
