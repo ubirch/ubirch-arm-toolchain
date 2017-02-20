@@ -102,7 +102,7 @@ macro(prepare_flash)
   )
 
   # Flashing the ubirch board works by invoking the ROM bootloader mode of the Kinetis device
-  if (BOARD MATCHES "ubirch|ubridge|usense" AND NOT (FLASH_JLINK OR FLASH_GDB))
+  if (BOARD MATCHES "ubirch" AND NOT (FLASH_JLINK OR FLASH_GDB))
     if (NOT BLHOST)
       message(FATAL_ERROR "can't flash using USB, the required blhost executable was not found!")
     endif ()
